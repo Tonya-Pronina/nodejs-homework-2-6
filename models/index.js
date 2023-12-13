@@ -1,21 +1,7 @@
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("./contacts");
-
-// const { nanoid } = require("nanoid");
-
-// module.exports = {
-//   getNanoid: () => nanoid,
-// };
+const { addSchema, updateFavoriteSchema, Contact } = require("./Contacts");
 
 module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
+  addSchema,
+  updateFavoriteSchema,
+  Contact,
 };

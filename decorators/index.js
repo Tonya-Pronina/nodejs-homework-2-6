@@ -1,4 +1,4 @@
-const decorateConrtoler = require("./ctrlWrapper");
+const decorateController = require("./ctrlWrapper");
 const validateData = require("./validatorBody");
 
-module.exports = { validateData, decorateConrtoler };
+module.exports = { validateData, decorateController };

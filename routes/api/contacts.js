@@ -2,25 +2,48 @@ const express = require("express");
 
 const router = express.Router();
 
-const {
-  getAll,
-  getByID,
-  add,
-  removeById,
-  updateById,
-} = require("../../controllers");
-const isEmptyBody = require("../../middlewares");
-const schema = require("../../schemas");
+const contacts = require("../../controllers/contacts-controllers");
+
 const { validateData } = require("../../decorators");
+const { addSchema, updateFavoriteSchema } = require("../../models");
+const { isValidId } = require("../../middlewares");
 
-router.get("/", getAll);
+router.get("/", contacts.getAll);
 
-router.get("/:contactId", getByID);
+router.get("/:id", (res, req, err) => {
+  if (err) return err;
+  return isValidId(contacts.getByID);
+});
 
-router.post("/", isEmptyBody, validateData(schema), add);
+router.post("/", validateData(addSchema), contacts.addContact);
 
-router.delete("/:contactId", removeById);
+router.put("/:id", async (req, res, next) => {
+  try {
+    await isValidId(req, res);
+    await validateData(updateFavoriteSchema)(req, res);
+    await contacts.updateByID(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.put("/:contactId", isEmptyBody, validateData(schema), updateById);
+router.patch("/:id/favorite", async (req, res, next) => {
+  try {
+    await isValidId(req, res);
+    await validateData(updateFavoriteSchema)(req, res);
+    await contacts.updateFavorite(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:id", async (req, res, next) => {
+  try {
+    await isValidId(req, res);
+    await contacts.removeById(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
