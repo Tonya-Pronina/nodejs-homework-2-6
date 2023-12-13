@@ -1,3 +1,6 @@
-const isEmptyBody = require("./isEmptyBody");
+const { isEmptyBody, isValidId } = require("../middlewares");
 
-module.exports = isEmptyBody;
+module.exports = {
+  isEmptyBody,
+  isValidId,
+};

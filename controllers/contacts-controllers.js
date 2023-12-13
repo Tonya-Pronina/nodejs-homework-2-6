@@ -1,56 +1,53 @@
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("../models");
+const { Contact } = require("../models/Contacts");
 
 const HttpError = require("../helpers");
-const { decorateConrtoler } = require("../decorators");
+const { decorateController } = require("../decorators");
 
-const getAll = async (req, res, next) => {
-  const result = await listContacts();
+const getAll = async (req, res) => {
+  const result = await Contact.find();
   res.json(result);
 };
 
-const getByID = async (req, res, next) => {
+const getByID = async (req, res) => {
   const { contactId } = req.params;
-  const result = await getContactById(contactId);
+  const result = await Contact.findById(contactId);
   if (!result) {
-    throw HttpError(404, `ID ${contactId} not found`);
+    throw HttpError(404, `Contact with id=${contactId} not found`);
   }
   res.json(result);
 };
 
-const add = async (req, res, next) => {
+const add = decorateController(async (req, res) => {
   const newContact = req.body;
-  const result = await addContact(newContact);
+  const result = await Contact.create(newContact);
   res.status(201).json(result);
-};
+});
 
-const removeById = async (req, res, next) => {
+const removeById = decorateController(async (req, res) => {
   const { contactId } = req.params;
-  const result = await removeContact(contactId);
+  const result = await Contact.findByIdAndDelete(contactId);
   if (!result) {
     throw HttpError(404, `ID ${contactId} not found`);
   }
   res.json({ message: "Contact deleted" });
-};
+});
 
-const updateById = async (req, res, next) => {
+const updateByID = decorateController(async (req, res) => {
   const { contactId } = req.params;
-  const result = await updateContact(contactId, req.body);
+  const result = await Contact.findByIdAndUpdate(contactId, req.body);
   if (!result) {
     throw HttpError(404, `ID ${contactId} not found`);
   }
   res.json(result);
-};
+});
+
+const updateFavorite = updateByID;
 
 module.exports = {
-  getAll: decorateConrtoler(getAll),
-  getByID: decorateConrtoler(getByID),
-  add: decorateConrtoler(add),
-  removeById: decorateConrtoler(removeById),
-  updateById: decorateConrtoler(updateById),
+  getAll: decorateController(getAll),
+  getByID: decorateController(getByID),
+  addContact: decorateController(add),
+  updateByID: decorateController(updateByID),
+  updateFavorite: decorateController(updateFavorite),
+  removeById: decorateController(removeById),
 };
