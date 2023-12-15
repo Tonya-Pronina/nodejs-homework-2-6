@@ -1,9 +1,9 @@
 const { decorateController } = require("../decorators/ctrlWrapper");
-const User = require("../models");
+const { User } = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const HttpError = require("../helpers/HttpError");
+const { HttpError } = require("../helpers/HttpError");
 
 const { SECRET_KEY } = process.env;
 
@@ -19,6 +19,7 @@ const register = async (req, res) => {
     email: newUser.email,
     name: newUser.name,
   });
+  console.log(user);
 };
 
 const login = async (req, res) => {
