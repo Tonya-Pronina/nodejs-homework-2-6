@@ -4,42 +4,54 @@ const HttpError = require("../helpers/HttpError");
 const { decorateController } = require("../decorators/ctrlWrapper");
 
 const getAll = async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const result = await Contact.find({ owner }, "-createdAt -updatedAt", {
+    skip,
+    limit,
+  }).populate("owner", "name subscription");
   res.json(result);
 };
 
 const getByID = async (req, res) => {
+  const { _id: owner } = req.user;
   const { contactId } = req.params;
-  const result = await Contact.findById(contactId);
+  const result = await Contact.getContactById(contactId, owner);
   if (!result) {
     throw HttpError(404, `Contact with id=${contactId} not found`);
   }
   res.json(result);
 };
 
-const add = decorateController(async (req, res) => {
-  const newContact = req.body;
-  const result = await Contact.create(newContact);
+const add = async (req, res) => {
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
-});
+};
 
-const removeById = decorateController(async (req, res) => {
+const removeById = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndDelete(contactId);
+  const result = await Contact.findByIdAndRemove(contactId);
   if (!result) {
-    throw HttpError(404, `ID ${contactId} not found`);
+    throw HttpError(404, `Contact with id=${contactId} not found`);
   }
-  res.json({ message: "Contact deleted" });
-});
+  res.json({
+    message: "Delete success",
+  });
+};
 
-const updateByID = decorateController(async (req, res) => {
+const updateByID = async (req, res) => {
+  const { _id: owner } = req.user;
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body);
+  const result = await Contact.updateContact(contactId, req.body, owner, {
+    new: true,
+  });
   if (!result) {
-    throw HttpError(404, `ID ${contactId} not found`);
+    throw HttpError(404, `Contact with id=${contactId} not found`);
   }
   res.json(result);
-});
+};
 
 const updateFavorite = updateByID;
 

@@ -7,10 +7,10 @@ const subscriptionList = ["starter", "pro", "business"];
 
 const userSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: [false, "Set name for contact"],
-    },
+    // name: {
+    //   type: String,
+    //   required: [true, "Set name for contact"],
+    // },
     email: {
       type: String,
       match: emailRegExp,
@@ -42,7 +42,6 @@ const userRegisterSchema = Joi.object({
   }),
   subscription: Joi.string()
     .valid(...subscriptionList)
-    .required()
     .messages({
       "any.required": `"subscription" must be exist`,
     }),
