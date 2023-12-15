@@ -11,7 +11,7 @@ const authVerification = decorateController(async (req, res, next) => {
   const token = authorization?.split(" ")[1];
 
   if (!authorization || !authorization.startsWith("Bearer ") || !token) {
-    throw new HttpError(401, "Not authorized");
+    throw HttpError(401, "Not authorized");
   }
 
   const { SECRET_KEY } = process.env;
@@ -20,13 +20,13 @@ const authVerification = decorateController(async (req, res, next) => {
     const { id } = jwt.verify(token, SECRET_KEY);
     const user = await User.findById(id);
     if (!user || !user.token || user.token !== token) {
-      throw new HttpError(401, "Not authorized");
+      throw HttpError(401, "Not authorized");
     }
     req.user = user;
 
     next();
   } catch (error) {
-    throw new HttpError(401, error.message);
+    throw HttpError(401, error.message);
   }
 });
 

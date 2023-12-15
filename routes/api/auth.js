@@ -1,6 +1,6 @@
 const express = require("express");
 const authRouter = express.Router();
-const authVerification = require("../../middlewares");
+const { authVerification } = require("../../middlewares");
 
 const authController = require("../../controllers/auth-controllers");
 
@@ -15,9 +15,9 @@ authRouter.post(
 
 authRouter.post("/login", validateData(userLoginSchema), authController.login);
 
-authRouter.get("/logout", async (req, res, next) => {
+authRouter.post("/logout", async (req, res, next) => {
   try {
-    await authVerification(req, res);
+    await authVerification(req, res, next);
     await authController.logout(req, res);
   } catch (error) {
     next(error);
@@ -26,7 +26,7 @@ authRouter.get("/logout", async (req, res, next) => {
 
 authRouter.get("/current", async (req, res, next) => {
   try {
-    await authVerification(req, res);
+    await authVerification(req, res, next);
     await authController.getCurrent(req, res);
   } catch (error) {
     next(error);
