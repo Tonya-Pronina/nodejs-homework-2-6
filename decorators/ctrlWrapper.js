@@ -9,4 +9,4 @@ const decorateController = (ctrl) => {
   return func;
 };
 
-module.exports = decorateController;
+module.exports = { decorateController };

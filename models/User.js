@@ -9,7 +9,7 @@ const userSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Set name for contact"],
+      required: [false, "Set name for contact"],
     },
     email: {
       type: String,
@@ -34,10 +34,7 @@ const userSchema = new Schema(
 userSchema.post("save", handleMongooseError);
 
 const userRegisterSchema = Joi.object({
-  name: Joi.string().required().messages({
-    "any.required": `"name" must be exist`,
-  }),
-  email: Joi.string().pattern(emailRegExp).required().messages({
+  email: Joi.string().required().pattern(emailRegExp).messages({
     "any.required": `"email" must be exist`,
   }),
   password: Joi.string().min(6).required().messages({
