@@ -2,10 +2,16 @@ const { decorateController } = require("../decorators/ctrlWrapper");
 const { User } = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs/promises");
+const path = require("path");
+const gravatar = require("gravatar");
+const Jimp = require("jimp");
 
-const { HttpError } = require("../helpers/HttpError");
+const HttpError = require("../helpers/HttpError");
 
 const { SECRET_KEY } = process.env;
+
+const avatarsDir = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -14,11 +20,17 @@ const register = async (req, res) => {
     throw HttpError(409, `Email ${email} already in use`);
   }
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
   res.status(201).json({
     User: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -44,7 +56,7 @@ const login = async (req, res) => {
 
   res.json({
     token,
-    User: {
+    user: {
       email,
       subscription,
     },
@@ -52,11 +64,12 @@ const login = async (req, res) => {
 };
 
 const getCurrent = async (req, res) => {
-  const { email, subscription } = req.user;
+  const { email, subscription, avatarURL } = req.user;
 
   res.json({
     email,
     subscription,
+    avatarURL,
   });
 };
 
@@ -69,9 +82,30 @@ const logout = async (req, res) => {
   });
 };
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: tempUpload, originalname } = req.file;
+  const img = await Jimp.read(tempUpload);
+  await img
+    .autocrop()
+    .cover(250, 250, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE)
+    .writeAsync(tempUpload);
+
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarsDir, filename);
+  await fs.rename(tempUpload, resultUpload);
+  const avatarURL = path.join("avatars", filename);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.status(200).json({
+    avatarURL,
+  });
+};
+
 module.exports = {
   register: decorateController(register),
   login: decorateController(login),
   getCurrent: decorateController(getCurrent),
   logout: decorateController(logout),
+  updateAvatar: decorateController(updateAvatar),
 };
