@@ -1,6 +1,6 @@
 const { Contact } = require("../models/Contacts");
 
-const { HttpError } = require("../helpers/HttpError");
+const HttpError = require("../helpers/HttpError");
 const { decorateController } = require("../decorators/ctrlWrapper");
 
 const getAll = async (req, res) => {
@@ -40,16 +40,20 @@ const removeById = async (req, res) => {
   res.status(200).json({ ...result._doc, message: "Contact deleted" });
 };
 
-const updateByID = async (req, res) => {
-  const { _id: owner } = req.user;
-  const { contactId } = req.params;
-  const result = await Contact.findOneAndUpdate(contactId, req.body, owner, {
-    new: true,
-  });
-  if (!result) {
-    throw HttpError(404, `Contact with id=${contactId} not found`);
+const updateByID = async (req, res, next) => {
+  try {
+    const { _id: owner } = req.user;
+    const { contactId } = req.params;
+    const result = await Contact.updateContact(contactId, req.body, owner, {
+      new: true,
+    });
+    if (!result) {
+      throw HttpError(404, `Contact with id=${contactId} not found`);
+    }
+    res.json(result);
+  } catch (error) {
+    next(error);
   }
-  res.json(result);
 };
 
 const updateFavorite = updateByID;

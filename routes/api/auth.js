@@ -1,6 +1,6 @@
 const express = require("express");
 const authRouter = express.Router();
-const { authVerification } = require("../../middlewares");
+const { authVerification, upload } = require("../../middlewares");
 
 const authController = require("../../controllers/auth-controllers");
 
@@ -9,6 +9,7 @@ const { userRegisterSchema, userLoginSchema } = require("../../models");
 
 authRouter.post(
   "/register",
+  upload.single("avatarURL"),
   validateData(userRegisterSchema),
   authController.register
 );
@@ -32,5 +33,12 @@ authRouter.get("/current", async (req, res, next) => {
     next(error);
   }
 });
+
+authRouter.patch(
+  "/avatars",
+  authVerification,
+  upload.single("avatar"),
+  authController.updateAvatar
+);
 
 module.exports = authRouter;

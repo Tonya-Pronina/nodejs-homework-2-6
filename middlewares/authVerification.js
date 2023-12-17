@@ -1,6 +1,6 @@
 const { User } = require("../models");
 const dotenv = require("dotenv");
-const { HttpError } = require("../helpers/HttpError");
+const HttpError = require("../helpers/HttpError");
 const jwt = require("jsonwebtoken");
 const { decorateController } = require("../decorators/ctrlWrapper");
 
