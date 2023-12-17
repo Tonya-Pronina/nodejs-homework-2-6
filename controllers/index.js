@@ -7,7 +7,14 @@ const {
   removeById,
 } = require("./contacts-controllers");
 
-const { register, login, getCurrent, logout } = require("./auth-controllers");
+const {
+  register,
+  login,
+  getCurrent,
+  logout,
+  verifyEmail,
+  resendVerify,
+} = require("./auth-controllers");
 
 module.exports = {
   getAll,
@@ -20,4 +27,6 @@ module.exports = {
   login,
   getCurrent,
   logout,
+  verifyEmail,
+  resendVerify,
 };
