@@ -5,7 +5,11 @@ const { authVerification, upload } = require("../../middlewares");
 const authController = require("../../controllers/auth-controllers");
 
 const { validateData } = require("../../decorators");
-const { userRegisterSchema, userLoginSchema } = require("../../models");
+const {
+  userRegisterSchema,
+  userLoginSchema,
+  userEmailSchema,
+} = require("../../models");
 
 authRouter.post(
   "/register",
@@ -14,6 +18,13 @@ authRouter.post(
   authController.register
 );
 
+authRouter.get("/verify/:verificationToken", authController.verifyEmail);
+
+authRouter.post(
+  "/verify",
+  validateData(userEmailSchema),
+  authController.resendVerify
+);
 authRouter.post("/login", validateData(userLoginSchema), authController.login);
 
 authRouter.post("/logout", async (req, res, next) => {
